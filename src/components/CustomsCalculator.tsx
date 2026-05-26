@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Scale, ShieldAlert, Sparkles, AlertTriangle, FileText, Landmark, RefreshCw } from 'lucide-react';
+import { Scale, ShieldAlert, Sparkles, AlertTriangle, FileText, Landmark, RefreshCw, Download } from 'lucide-react';
 import { LanguageType, TranslationType, CategoryType } from '../utils/translations';
 import { SystemSettings, CalculatorState, CalculationResult } from '../types';
+import { jsPDF } from 'jspdf';
 
 interface CustomsCalculatorProps {
   settings: SystemSettings;
@@ -66,6 +67,227 @@ export default function CustomsCalculator({ settings, lang, t, addRecord }: Cust
 
       setCalculating(false);
     }, 600);
+  };
+
+  const exportResultAsPdf = () => {
+    if (!result) return;
+
+    // Create full landscape or portrait document in A4
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const primaryNavy = '#002D62';
+    const accentGold = '#D4AF37';
+
+    // Draw header solid backdrop
+    doc.setFillColor(0, 45, 98);
+    doc.rect(0, 0, 210, 40, 'F');
+
+    // Draw luxury borders
+    doc.setFillColor(212, 175, 87);
+    doc.rect(0, 40, 210, 3, 'F');
+
+    // Title Texts
+    doc.setTextColor(212, 175, 87);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("IRAQ DIGITAL GATEWAY", 15, 16);
+
+    // Subtitle Texts
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("OFFICIAL BORDER PORTAL • CALCULATIONS COMPLIANT WITH CUSTOMS DECREE LAW NO. 22 (2010)", 15, 24);
+
+    // Generation Info
+    const dateStr = new Date().toLocaleString();
+    doc.setFontSize(8);
+    doc.setFont("Courier", "normal");
+    doc.text(`DATE GENERATED: ${dateStr}`, 15, 32);
+
+    const docId = `Assessment-Ref-${Math.floor(100000 + Math.random() * 900000)}`;
+    doc.setTextColor(212, 175, 87);
+    doc.setFont("Courier", "bold");
+    doc.text(docId.toUpperCase(), 145, 32);
+
+    // Section 1: Parameters Declarations
+    doc.setTextColor(0, 45, 98);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("1. CUSTOMS DECLARATION DECLARED PARAMS", 15, 54);
+
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.4);
+    doc.line(15, 58, 195, 58);
+
+    // Render Box parameter summary
+    doc.setFillColor(248, 250, 252);
+    doc.rect(15, 62, 180, 26, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.rect(15, 62, 180, 26, 'S');
+
+    doc.setTextColor(71, 85, 105);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Cargo Class Category:", 20, 69);
+    doc.text("Declared Invoice Value (FOB):", 20, 75);
+    doc.text("Cumulative Cargo Weight:", 20, 81);
+
+    const translatedCategory = state.category === 'ئاسایی' ? 'Standard (ئاسایی)' : state.category === 'لوکس' ? 'Luxury (لوکس)' : 'Industrial (پیشەسازی)';
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("Helvetica", "bold");
+    doc.text(translatedCategory, 75, 69);
+    doc.text(`$${state.declaredValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`, 75, 75);
+    doc.text(`${state.weight.toLocaleString('en-US')} KG`, 75, 81);
+
+    doc.line(130, 62, 130, 88);
+    doc.setTextColor(71, 85, 105);
+    doc.setFont("Helvetica", "normal");
+    doc.text("Border Sector Code:", 135, 69);
+    doc.text("Regulatory Status:", 135, 75);
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("Helvetica", "bold");
+    doc.text("IDG-BORDER-01", 170, 69);
+    doc.text("COMPLIANT", 170, 75);
+
+    // Section 2: Financial Assessment Breakdown
+    doc.setTextColor(0, 45, 98);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("2. SURCHARGES & TARIFF BREAKDOWN REPORT", 15, 102);
+
+    doc.setDrawColor(226, 232, 240);
+    doc.line(15, 106, 195, 106);
+
+    // Header grid
+    doc.setFillColor(241, 245, 249);
+    doc.rect(15, 110, 180, 8, 'F');
+    doc.setTextColor(71, 85, 105);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("TARIFF OBLIGATION ITEM DESCRIPTION", 18, 115.5);
+    doc.text("APPLIED RATE", 105, 115.5);
+    doc.text("CALCULATED SUM (USD)", 150, 115.5);
+
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+
+    let curY = 126;
+    // Row 1: Base tax
+    doc.text("Base Customs Tariff", 18, curY);
+    doc.text(`${result.customsRatePercentage.toFixed(1)}% of value`, 105, curY);
+    doc.text(`$${result.baseTaxUsd.toFixed(2)}`, 150, curY);
+    doc.setDrawColor(241, 245, 249);
+    doc.line(15, curY + 4, 195, curY + 4);
+
+    // Row 2: National Protection
+    curY += 10;
+    doc.text("National Product Protective Tariff", 18, curY);
+    doc.text(settings.protection.enabled ? `${settings.protection.rate.toFixed(1)}% surcharge` : "0.0% (Exempt)", 105, curY);
+    doc.text(`$${result.protectionTaxUsd.toFixed(2)}`, 150, curY);
+    doc.line(15, curY + 4, 195, curY + 4);
+
+    // Row 3: Sonar
+    curY += 10;
+    doc.text("Official Sonar Border Inspection fee", 18, curY);
+    doc.text(`Base + Surcharge`, 105, curY);
+    doc.text(`$${(settings.fixed_fees.sonar + state.extraSonar).toFixed(2)}`, 150, curY);
+    doc.line(15, curY + 4, 195, curY + 4);
+
+    // Row 4: quality CBI
+    curY += 10;
+    doc.text("CBI Quality audit compliance verification fee", 18, curY);
+    doc.text(`Base + Surcharge`, 105, curY);
+    doc.text(`$${(settings.fixed_fees.cbi + state.extraQuality).toFixed(2)}`, 150, curY);
+    doc.line(15, curY + 4, 195, curY + 4);
+
+    // Row 5: Port custom license
+    curY += 10;
+    doc.text("Maritime Port Handling & licensing administrative fees", 18, curY);
+    doc.text("Standard fixed border fee", 105, curY);
+    doc.text(`$${(settings.fixed_fees.port + state.extraLicense).toFixed(2)}`, 150, curY);
+    doc.setDrawColor(15, 23, 42);
+    doc.setLineWidth(0.8);
+    doc.line(15, curY + 4, 195, curY + 4);
+
+    // Section 3: Summary conversions
+    curY += 14;
+    doc.setFillColor(248, 250, 252);
+    doc.rect(15, curY, 180, 52, 'F');
+    doc.setDrawColor(212, 175, 87);
+    doc.setLineWidth(0.8);
+    doc.rect(15, curY, 180, 52, 'S');
+
+    doc.setTextColor(0, 45, 98);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.text("3. CUMULATIVE CONSOLIDATED ESTIMATION SUMMARY", 20, curY + 8);
+
+    doc.setFillColor(226, 232, 240);
+    doc.rect(20, curY + 11, 170, 0.4, 'F');
+
+    // Total cost USD row
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(12);
+    doc.text("GRAND NET CUSTOMS OBLIGATION:", 20, curY + 20);
+    doc.setTextColor(212, 175, 87);
+    doc.setFontSize(15);
+    doc.text(`$${result.totalCostUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`, 110, curY + 20);
+
+    // Converts Official exchange
+    doc.setTextColor(71, 85, 105);
+    doc.setFontSize(9);
+    doc.setFont("Helvetica", "normal");
+    doc.text(`Official Central Bank of Iraq Conversion Rate (1 USD = ${settings.currency.official} IQD):`, 20, curY + 31);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("Helvetica", "bold");
+    doc.text(`${Math.round(result.totalCostIqdOfficial).toLocaleString('en-US')} IQD`, 140, curY + 31);
+
+    // Converts Market exchange
+    doc.setTextColor(71, 85, 105);
+    doc.setFont("Helvetica", "normal");
+    doc.text(`Free Street Market Average Conversion Rate (1 USD = ${settings.currency.market} IQD):`, 20, curY + 41);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("Helvetica", "bold");
+    doc.text(`${Math.round(result.totalCostIqdMarket).toLocaleString('en-US')} IQD`, 140, curY + 41);
+
+    // Stamp & Signature and disclaimer footer
+    curY += 60;
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.text("REGULATORY DISCLAIMER AND COMPLIANCE CLAUSE:", 15, curY);
+    doc.text("This estimation is generated programmatically at the user request following Border Control digital rules.", 15, curY + 3.5);
+    doc.text("Exact customized parameters are defined from the active administrative portal. Discrepancies may be updated dynamically.", 15, curY + 7);
+
+    // Administrative Stamp
+    doc.setFillColor(248, 250, 252);
+    doc.rect(130, curY - 5, 65, 22, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.4);
+    doc.rect(130, curY - 5, 65, 22, 'S');
+
+    doc.setTextColor(0, 45, 98);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("IRAQ PORT AUTHORIZATION", 132.5, curY - 1);
+    
+    doc.setTextColor(212, 175, 87);
+    doc.setFontSize(10);
+    doc.text("GATEWAY VERIFIED", 132.5, curY + 5);
+
+    doc.setTextColor(148, 163, 184);
+    doc.setFont("Courier", "normal");
+    doc.setFontSize(6.5);
+    doc.text("System Code: Law-22-2010", 132.5, curY + 12);
+
+    // Save PDF
+    doc.save(`Iraq_${state.category}_Declaration_Summary.pdf`);
   };
 
   return (
@@ -299,6 +521,17 @@ export default function CustomsCalculator({ settings, lang, t, addRecord }: Cust
                   </div>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={exportResultAsPdf}
+                className="w-full bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/15 hover:border-idg-gold/40 text-idg-gold font-bold py-3 px-5 rounded-xl transition duration-205 cursor-pointer flex items-center justify-center gap-2 shadow-xl shrink-0"
+              >
+                <Download className="w-4.5 h-4.5 text-idg-gold" />
+                <span className="font-sans font-extrabold text-xs tracking-wider uppercase">
+                  {lang === 'ku' ? 'داونلۆدکردنی ڕاپۆرتی PDF' : 'Download PDF Report'}
+                </span>
+              </button>
 
               <p className="text-[10px] text-slate-500 text-center">{t.calculator.exchangeNotice}</p>
             </div>
