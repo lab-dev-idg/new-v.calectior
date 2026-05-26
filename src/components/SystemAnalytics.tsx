@@ -2,6 +2,7 @@ import React from 'react';
 import { AreaChart, TrendingUp, DollarSign, Activity, ListChecks, ArrowDownRight, ArrowUpRight, Scale, Trash2 } from 'lucide-react';
 import { LanguageType, TranslationType } from '../utils/translations';
 import { SystemSettings, CustomsLists } from '../types';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface SystemAnalyticsProps {
   settings: SystemSettings;
@@ -24,6 +25,41 @@ export default function SystemAnalytics({ settings, lists, lang, t, records, cle
   const spreadPercentage = ((currencySpread) / settings.currency.official) * 100;
 
   const totalItemsCount = lists.allowed.length + lists.restricted.length + lists.prohibited.length;
+
+  const chartData = React.useMemo(() => {
+    const data = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dateString = d.toLocaleDateString(lang === 'ku' ? 'ku-IQ' : 'en-US', { month: 'short', day: 'numeric' });
+      
+      const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+      const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+      
+      let sumTax = 0;
+      records.forEach(rec => {
+        let recTime = 0;
+        const tsMatch = rec.id.match(/^rec-(\d+)$/);
+        if (tsMatch) {
+          recTime = Number(tsMatch[1]);
+        } else {
+          recTime = new Date(rec.timestamp).getTime();
+        }
+        
+        if (recTime >= dayStart && recTime < dayEnd) {
+          sumTax += rec.tax;
+        }
+      });
+      
+      data.push({
+        date: dateString,
+        tax: Number(sumTax.toFixed(2)),
+      });
+    }
+    return data;
+  }, [records, lang]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -195,6 +231,57 @@ export default function SystemAnalytics({ settings, lists, lang, t, records, cle
           </div>
         </div>
 
+      </div>
+
+      {/* 7-Day Customs Tax Trend (Recharts Line Chart) */}
+      <div className="glass-card p-5 flex flex-col gap-4">
+        <div className="border-b border-white/5 pb-3 flex justify-between items-center">
+          <h3 className="font-bold text-sm text-[#D4AF37] flex items-center gap-2">
+            <TrendingUp className="w-4.5 h-4.5 text-[#D4AF37]" />
+            <span>{lang === 'ku' ? 'ڕەوتی باجی گومرگی لە ٧ رۆژی ڕابردوودا' : '7-Day Customs Tax Trend (USD)'}</span>
+          </h3>
+          <span className="text-[10px] font-mono text-slate-400">
+            {lang === 'ku' ? 'سیستەمی فەرمی دەروازە' : 'Official Portal Surcharges Timeline'}
+          </span>
+        </div>
+        
+        <div className="h-[240px] w-full mt-2 font-mono text-xs">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 15, right: 15, left: 10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+              <XAxis 
+                dataKey="date" 
+                stroke="#94a3b8" 
+                fontSize={10}
+                tickLine={false}
+              />
+              <YAxis 
+                stroke="#94a3b8" 
+                fontSize={10}
+                tickFormatter={(value) => `$${value}`}
+                tickLine={false}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  background: 'rgba(15, 23, 42, 0.95)', 
+                  border: '1px solid rgba(212, 175, 87, 0.2)', 
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontFamily: 'sans-serif'
+                }} 
+                formatter={(value) => [`$${value}`, lang === 'ku' ? 'کۆی باج' : 'Customs Tax']}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="tax" 
+                stroke="#D4AF37" 
+                strokeWidth={3}
+                dot={{ r: 4, stroke: '#D4AF37', strokeWidth: 1, fill: '#0F172A' }}
+                activeDot={{ r: 6, stroke: '#e6c24c', strokeWidth: 2, fill: '#fff' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
     </div>
