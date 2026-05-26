@@ -15,7 +15,7 @@ export default function Topbar({ lang, toggleLanguage, t, settings }: TopbarProp
   const currencySpread = settings.currency.market - settings.currency.official;
 
   return (
-    <header className="h-20 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-6 md:px-8 bg-[#002D62] relative z-20 shrink-0 gap-4 md:gap-0 py-3 md:py-0 rounded-2xl md:rounded-b-none shadow-xl">
+    <header className="min-h-20 md:h-20 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-6 md:px-8 bg-[#002D62] relative z-20 shrink-0 gap-4 md:gap-0 py-4 md:py-0 rounded-2xl md:rounded-b-none shadow-xl">
       <div className="flex items-center gap-4 w-full md:w-auto">
         <div className="w-10 h-10 bg-[#D4AF37] rounded flex items-center justify-center font-bold text-[#002D62] text-xl shadow-md">
           IG

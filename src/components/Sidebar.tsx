@@ -15,7 +15,7 @@ export default function Sidebar({ lang, t, settings, lists }: SidebarProps) {
   const totalListsItems = lists.allowed.length + lists.restricted.length + lists.prohibited.length;
 
   return (
-    <div className="w-full lg:w-72 flex flex-col gap-4 shrink-0">
+    <div className="w-full md:w-64 lg:w-72 flex flex-col gap-4 shrink-0">
       
       {/* AI predictor pulse & System info */}
       <div className="glass-card p-5 flex flex-col justify-between">

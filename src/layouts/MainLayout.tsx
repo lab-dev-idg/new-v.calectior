@@ -51,7 +51,7 @@ export default function MainLayout({
         />
 
         {/* Live operational interface grid (Sidebar left + Dynamic page right) */}
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
+        <div className="flex flex-col md:flex-row gap-6 items-stretch flex-1">
           
           <Sidebar
             lang={lang}
