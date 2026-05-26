@@ -14,7 +14,7 @@ export default function Navbar({ activePage, onPageChange, lang, t }: NavbarProp
     { id: 'dashboard', label: t.tabs.analytics, icon: Activity },
     { id: 'calculator', label: t.tabs.cargo, icon: Landmark },
     { id: 'lists', label: t.tabs.rules, icon: ShieldCheck },
-    { id: 'history', label: lang === 'ku' ? 'تۆمارەکان' : 'History Log', icon: History },
+    { id: 'history', label: t.common.history, icon: History },
     { id: 'audit', label: t.tabs.chat, icon: MessageSquare },
     { id: 'admin', label: t.tabs.admin, icon: Sliders },
   ];

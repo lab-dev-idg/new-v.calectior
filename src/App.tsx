@@ -112,7 +112,11 @@ export default function App() {
   };
 
   const toggleLanguage = () => {
-    setLang(prev => (prev === 'ku' ? 'en' : 'ku'));
+    setLang(prev => {
+      if (prev === 'ku') return 'en';
+      if (prev === 'en') return 'ar';
+      return 'ku';
+    });
   };
 
   return (

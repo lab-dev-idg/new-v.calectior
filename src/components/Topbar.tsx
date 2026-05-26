@@ -15,16 +15,22 @@ export default function Topbar({ lang, toggleLanguage, t, settings }: TopbarProp
   const currencySpread = settings.currency.market - settings.currency.official;
 
   return (
-    <header className="min-h-20 md:h-20 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-6 md:px-8 bg-[#002D62] relative z-20 shrink-0 gap-4 md:gap-0 py-4 md:py-0 rounded-2xl md:rounded-b-none shadow-xl">
+    <header className="min-h-24 md:min-h-20 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-6 md:px-8 bg-[#002D62] relative z-20 shrink-0 gap-4 md:gap-0 py-4 md:py-3 rounded-2xl md:rounded-b-none shadow-xl">
       <div className="flex items-center gap-4 w-full md:w-auto">
-        <div className="w-10 h-10 bg-[#D4AF37] rounded flex items-center justify-center font-bold text-[#002D62] text-xl shadow-md">
-          IG
+        <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#f3d05a] rounded-xl flex items-center justify-center text-xl shadow-lg border border-white/10 shrink-0 select-none">
+          🏛️
         </div>
-        <div>
-          <h1 className="text-base md:text-lg font-bold text-[#D4AF37] tracking-tight">
-            {lang === 'ku' ? 'دەروازەی دیجیتاڵی عێراق' : 'IRAQ DIGITAL GATEWAY'}
-          </h1>
-          <p className="text-[9px] opacity-75 uppercase tracking-widest text-slate-100">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
+            <h1 className="text-base md:text-lg font-black text-[#D4AF37] tracking-tight font-display flex items-center gap-2">
+              <span>{lang === 'ku' ? 'دەروازەی دیجیتاڵی عێراق' : lang === 'ar' ? 'بوابة العراق الرقمية' : 'IRAQ DIGITAL GATEWAY'}</span>
+            </h1>
+            <span className="hidden md:inline-block w-1 h-1 rounded-full bg-white/20" />
+            <span className="text-[9px] md:text-[10px] text-emerald-400 font-bold bg-emerald-950/55 border border-emerald-500/20 px-2.5 py-0.5 rounded-full shadow-inner select-none font-sans self-start md:self-auto">
+              {t.lawCaption}
+            </span>
+          </div>
+          <p className="text-[10px] md:text-xs font-semibold text-slate-200 leading-tight">
             {t.subtitle}
           </p>
         </div>
@@ -53,10 +59,12 @@ export default function Topbar({ lang, toggleLanguage, t, settings }: TopbarProp
           <button
             onClick={toggleLanguage}
             type="button"
-            className="bg-white/5 text-xs text-idg-gold border border-idg-gold/20 hover:border-idg-gold/50 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 cursor-pointer hover:bg-white/10 transition-all active:scale-95"
+            className="bg-white/5 text-xs text-idg-gold border border-idg-gold/20 hover:border-idg-gold/50 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 cursor-pointer hover:bg-white/10 transition-all active:scale-95 select-none"
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>{lang === 'ku' ? 'English' : 'کوردی'}</span>
+            <span>
+              {lang === 'ku' ? 'کوردی' : lang === 'en' ? 'English' : 'العربية'}
+            </span>
           </button>
 
           <div className="text-right text-xs">
