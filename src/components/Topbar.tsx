@@ -17,8 +17,8 @@ export default function Topbar({ lang, toggleLanguage, t, settings }: TopbarProp
   return (
     <header className="min-h-24 md:min-h-20 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-6 md:px-8 bg-[#002D62] relative z-20 shrink-0 gap-4 md:gap-0 py-4 md:py-3 rounded-2xl md:rounded-b-none shadow-xl">
       <div className="flex items-center gap-4 w-full md:w-auto">
-        <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#f3d05a] rounded-xl flex items-center justify-center text-xl shadow-lg border border-white/10 shrink-0 select-none">
-          🏛️
+        <div className="w-16 h-16 bg-slate-950/80 border border-white/10 rounded-2xl flex items-center justify-center shadow-lg animate-pulse shrink-0 select-none">
+          <Landmark className="w-8 h-8 text-[#D4AF37]" />
         </div>
         <div className="flex flex-col gap-0.5">
           <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
