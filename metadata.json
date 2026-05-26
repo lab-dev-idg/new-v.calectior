@@ -1,0 +1,6 @@
+{
+  "name": "Iraq Digital Gateway",
+  "description": "Interactive Iraqi border customs tax estimator and information hub following Law #22 of 2010. Includes real-time calculations, dynamic tariff controllers, list manager, and an AI customs advisor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
